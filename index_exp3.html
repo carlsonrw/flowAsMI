@@ -1,0 +1,1192 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>My experiment</title>
+
+        <script src="jspsych-6.1.0/jspsych.js"></script>
+        <script src="jspsych-6.1.0/plugins/jspsych-html-keyboard-response.js"></script>
+        <script src="jspsych-6.1.0/plugins/jspsych-html-button-response.js"></script>
+        <script src="jspsych-6.1.0/plugins/jspsych-survey-multi-choice.js"></script>
+        <script src="jspsych-6.1.0/plugins/jspsych-external-html.js"></script>
+        <script src="jspsych-6.1.0/plugins/jspsych-instructions.js"></script>
+        <script src="jspsych-6.1.0/plugins/jspsych-html-slider-response.js"></script>
+        <script src="jspsych-6.1.0/plugins/jspsych-survey-likert.js"></script>
+        <script src="jspsych-6.1.0/plugins/jspsych-survey-text.js"></script>
+        <script src="jspsych-6.1.0/plugins/jspsych-image-keyboard-response.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+        <link href="jspsych-6.1.0/css/jspsych.css" rel="stylesheet" type="text/css"></link>
+        </head>
+    <body></body>
+
+
+<script>
+
+        // Define Stimuli
+        var balance = jsPsych.randomization.sampleWithReplacement([0, 1], 1)
+        var GameType = jsPsych.randomization.sampleWithReplacement([0, 1, 2, 3], 1)
+        var GetDate = jsPsych.data.getURLVariable('date')
+        var GetTime = jsPsych.data.getURLVariable('time')
+        jsPsych.data.addProperties({
+            Color_Order: balance,
+            Condition: GameType,
+            StartDate: GetDate,
+            StartTime: GetTime,
+        });
+
+        if(balance == 1){
+            R1Color      = "#00aa00"
+            R1ColorWord  = "<span class='a-span'>green</span>"
+            R1Span       = "<span class='a-span'>Green Game</span>"
+            R2Color      = "#1067e8"
+            R2ColorWord  = "<span class='b-span'>blue</span>"
+            R2Span       = "<span class='b-span'>Blue Game</span>"
+        } else {
+            R1Color      = "#1067e8"
+            R1ColorWord  = "<span class='b-span'>blue</span>"
+            R1Span       = "<span class='b-span'>Blue Game</span>"
+            R2Color      = "#00aa00"
+            R2ColorWord  = "<span class='a-span'>green</span>"
+            R2Span       = "<span class='a-span'>Green Game</span>"
+        }
+
+        if(GameType == 0 || GameType == 2){
+            WontColor     = "#cf0000"
+            WontColorWord = "<span class='red-span'>red</span>"
+            WontOutcome   = "lose two cents"
+            WontPng       = "lose"
+            WillColor     = "#444444"
+            WillColorWord = "<span class='gray-span'>gray</span>"
+            WillOutcome   = "gain zero cents"
+            WillPng       = "nope"
+        } else if(GameType == 1 || GameType == 3){
+            WontColor     = "#444444"
+            WontColorWord = "<span class='gray-span'>gray</span>"
+            WontOutcome   = "gain zero cents"
+            WontPng       = "nope"
+            WillColor     = "#cf0000"
+            WillColorWord = "<span class='red-span'>red</span>"
+            WillOutcome   = "lose two cents"
+            WillPng       = "lose"
+        } 
+
+        var i;
+        var timing = jsPsych.randomization.shuffle([200, 750]);
+        for (i = 0; i < 100; i++){
+            var couplet = jsPsych.randomization.shuffle([200, 750]);
+            var timing = timing.concat(couplet);
+        }
+
+        var i;
+        var missoutcome = jsPsych.randomization.shuffle(["#cf0000", "#444444"]);
+        for (i = 0; i < 100; i++) {
+            var couplet = jsPsych.randomization.shuffle(["#cf0000", "#444444"]);
+            var missoutcome = missoutcome.concat(couplet);
+        }
+
+        var ITI = [250, 500, 750, 1000, 1250, 1500, 1750, 2000, 2250, 2500, 2750, 3000]
+
+        var missNum = 1
+
+        var tNum = -1
+
+//        var compchk1 = 0
+
+        /* create timeline */
+        var timeline = []
+
+      
+//         //Function to check whether consent has been given
+//         var check_consent = function(elem) {
+//             if (document.getElementById('consent_checkbox').checked) {
+//             return true;
+//             }
+//             else {
+//                 alert("If you wish to participate, you must check the box next to the statement 'I agree to participate in this study.'");
+//                 return false;
+//             }
+//             return false;
+//         };
+//
+//         //Presents external consent page to participants
+//         var consent = {
+//             type:'external-html',
+//             url: "consent.html",
+//             cont_btn: "start",
+//             check_fn: check_consent
+//         };
+//         timeline.push(consent);
+
+        /* define welcome message trial */
+        var welcome = {
+            type: "html-keyboard-response",
+            stimulus: "<div class='parent'>"
+            +"<p>Welcome!</p>"
+            +"<p>In this survey, you will play games and answer questions about them.<br>"
+            +"When you're ready to begin, press your SPACEBAR to proceed to the next screen.</p></div>"
+        }
+
+        var R1i1 = [
+        "<div class='parent' style='text-align: left'>"
+        +'<p>We are designing games that can be used by behavioral scientists to study motivation and decision making. To '
+        +"make the games as engaging as possible, we are getting feedback from people like you.</p>"
+        +"<p>You will play two different games: "
+        +"the "+R1Span+" and the "+R2Span+". Then you will tell us "
+        +"which you found more engaging.</p>"
+        +"<p>The games are very similar, but their color schemes will help you tell them apart.</p>"
+        +"<p>Continue to learn about and play the "+R1Span+".</p>"
+        +"<p>After you finish, you will learn about and play the "+R2Span+".</p>"
+        +"<p>Press your SPACEBAR to progress through each screen.</p></div>"]
+
+        var R1i2 = [
+        "<div class='parent'>"
+        +'<p>The goal of the '+R1Span+' is to win as many "10-cent Jackpots" as possible.</p>'
+        +"<p>For every 10-cent Jackpot you win, you'll receive an extra 10 cents. "
+        +"At the end of the study, you'll receive a $5 eGiftcard for your participation, "
+        +'plus an additional 10 cents for each 10-cent Jackpot you won.</p></div>',
+        "<div class='parent'>"
+        +'<p>To win 10-cent Jackpots, you must stop '+R1ColorWord+' tiles from changing color.</p>'
+        +'<div class="box" style="background-color:'+R1Color+'"></div></div>',
+        "<div class='parent'>"
+        +'<p>To stop a '+R1ColorWord+' tile from changing color, '
+        +'you must press your SPACEBAR as soon as it appears on your screen. '
+        +'Thus, whenever you see a '+R1ColorWord+' tile (like this one), '
+        +'you should press your SPACEBAR as fast as possible.</p>'
+        +'<div class="box" style="background-color:'+R1Color+'"></div></div>',
+        "<div class='parent'>"
+        +'<p>Each time you stop a '+R1ColorWord+' tile from changing color, '
+        +'it will glow, signalling that you won a 10-cent Jackpot.</p>'
+        +'<div class="box" style="background-color:'+R1Color+'; box-shadow: 0px 0px 40px 20px #FFDF00"></div>'
+        +"</div>",
+        "<div class='parent'>"
+        +"<p>Each time you win a 10-cent Jackpot, you will see this image.</p>"
+        +"<img src='img/jackpot.png', style='height: 75%'></div>",
+        '<div class="parent">'
+        +'<p>Please keep in mind that the '+R1ColorWord+' tiles change color very quickly...</p>'
+        +'<div class="box" style="background-color:'+R1Color+'"></div>'
+        +"</div>"]
+
+        var R1i3_Punish = [
+        "<div class='parent'>"
+        +"<p>Specifically, they very quickly turn <span class='red-span'>red</span>.</p>"
+        +'<div class="box" style="background-color:#cf0000"></div>'
+        +"</div>",
+        "<div class='parent'>"
+        +"<p>If a tile turns <span class='red-span'>red</span> before you stop it, you will lose two cents...</p>"
+        +'<div class="box" style="background-color:#cf0000"></div>'
+        +"</div>",
+        "<div class='parent'>"
+        +"<p>...and you will see this image.</p>"
+        +"<img src='img/lose.png', style='height: 75%'>"
+        +"</div>",
+        "<div class='parent'>"
+        +"<p>In summary, you will win a 10-cent Jackpot each time you stop a <span class='green-span'>green</span> tile from changing color...</p>"
+        +'<div class="box" style="background-color:#00aa00; box-shadow: 0px 0px 40px 20px #FFDF00"></div>'
+        +"</div>",
+        "<div class='parent'>"
+        +"<p>...but each time a tile turns <span class='red-span'>red</span> before you stop it, you will lose two cents.</p>"
+        +'<div class="box" style="background-color:#cf0000"></div>'
+        +"</div>"]
+
+        var R1i3_Neutral = [
+        "<div class='parent'>"
+        +"<p>Specifically, they very quickly turn <span class='gray-span'>gray</span>.</p>"
+        +'<div class="box" style="background-color:#444444"></div>'
+        +"</div>",
+        "<div class='parent'>"
+        +"<p>If a tile turns <span class='gray-span'>gray</span> before you stop it, you will gain zero cents...</p>"
+        +'<div class="box" style="background-color:#444444"></div>'
+        +"</div>",
+        "<div class='parent'>"
+        +"<p>...and you will see this image.</p>"
+        +"<img src='img/nope.png', style='height: 75%'>"
+        +"</div>",
+        "<div class='parent'>"
+        +"<p>In summary, you will win a 10-cent Jackpot each time you stop a "+R1ColorWord+" tile from changing color...</p>"
+        +'<div class="box" style="background-color:'+R1Color+'; box-shadow: 0px 0px 40px 20px #FFDF00"></div>'
+        +"</div>",
+        "<div class='parent'>"
+        +"<p>...but each time a tile turns <span class='gray-span'>gray</span> before you stop it, you will gain zero cents.</p>"
+        +'<div class="box" style="background-color:#444444"></div>'
+        +"</div>"]
+
+        var R1i3_3State = [
+        "<div class='parent'>"
+        +"<p>Half the time they turn <span class='red-span'>red</span>...</p>"
+        +'<div class="box" style="background-color:#cf0000"></div>'
+        +"</div>",
+        "<div class='parent'>"
+        +"<p>...and half the time they turn <span class='gray-span'>gray</span>.</p>"
+        +'<div class="box" style="background-color:#444444"></div>'
+        +"</div>",
+        "<div class='parent'>"
+        +"<p>If a tile turns <span class='gray-span'>gray</span> before you stop it, you will gain zero cents...</p>"
+        +'<div class="box" style="background-color:#444444"></div>'
+        +"</div>",
+        "<div class='parent'>"
+        +"<p>...and you will see this image.</p>"
+        +"<img src='img/nope.png', style='height: 75%'>"
+        +"</div>",
+        "<div class='parent'>"
+        +"<p>If a tile turns <span class='red-span'>red</span> before you stop it, you will lose two cents...</p>"
+        +'<div class="box" style="background-color:#cf0000"></div>'
+        +"</div>",
+        "<div class='parent'>"
+        +"<p>...and you will see this image.</p>"
+        +"<img src='img/lose.png', style='height: 75%'>"
+        +"</div>",
+        "<div class='parent'>"
+        +"<p>In summary, you will win a 10-cent Jackpot each time you stop a "+R1ColorWord+" tile from changing color...</p>"
+        +'<div class="box" style="background-color:'+R1Color+'; box-shadow: 0px 0px 40px 20px #FFDF00"></div>'
+        +"</div>",
+        "<div class='parent'>"
+        +"<p>...but each time a tile turns <span class='gray-span'>gray</span> before you stop it, you will gain zero cents...</p>"
+        +'<div class="box" style="background-color:#444444"></div>'
+        +"</div>",
+        "<div class='parent'>"
+        +"<p>...and each time a tile turns <span class='red-span'>red</span> before you stop it, you will lose two cents.</p>"
+        +'<div class="box" style="background-color:#cf0000"></div>'
+        +"</div>"]
+
+        var T1a = {
+            type: "instructions",
+            pages: R1i1,
+            key_forward: 32,
+            on_finish: function(data){
+                console.log(timing);
+                console.log(missoutcome);
+            },
+        }
+
+        var T1b = {
+            type: "instructions",
+            pages: R1i2,
+            key_forward: 32,
+        }
+        var T1c_3State = {
+            type: "instructions",
+            pages: R1i3_3State,
+            key_forward: 32,
+        }
+
+        var T1c_Punish = {
+            type: "instructions",
+            pages: R1i3_Punish,
+            key_forward: 32,
+        }
+
+        var T1c_Neutral = {
+            type: "instructions",
+            pages: R1i3_Neutral,
+            key_forward: 32,
+        }
+
+        var T1d = {
+            type: "instructions",
+            pages: ["<div class='parent'>"
+            +"<p>You are now ready to play the "+R1Span+".</p>"
+            +"<p>Once you proceed, the "+R1Span+" will start immediately, "
+            +"so get ready to press your SPACEBAR.</p>"
+            +"<p>Continue to to begin.</p>"
+            +"</div>"],
+            key_forward: 32,
+            post_trial_gap: 500,
+        }
+
+        // Round 1 Comp Check
+        var CompChk_Hit = {
+            type: 'html-button-response',
+            stimulus:'<p>To make sure you understand the rules of the '+R1Span+', '
+            +'please answer the following question:</p>'
+            +'<p>What happens each time you stop a '+R1ColorWord+' tile from changing color?</p>',
+            choices: ["I win a 10-cent Jackpot", "I gain zero cents", "I lose two cents"],
+            on_finish: function(data){
+                compchk_g = data.button_pressed;
+            },
+        };
+
+        var CompChk_Gray = {
+            type: 'html-button-response',
+            stimulus:'<p>To make sure you understand the rules of the '+R1Span+', '
+            +'please answer the following question:</p>'
+            +'<p>What happens each time a tile turns <span class="gray-span">gray</span> before you stop it?</p>',
+            choices: ["I win a 10-cent Jackpot", "I gain zero cents", "I lose two cents"],
+            on_finish: function(data){
+                compchk_b = data.button_pressed;
+            },
+        };
+
+        var CompChk_Red = {
+            type: 'html-button-response',
+            stimulus:'<p>To make sure you understand the rules of the '+R1Span+', '
+            +'please answer the following question:</p>'
+            +'<p>What happens each time a tile turns <span class="red-span">red</span> before you stop it?</p>',
+            choices: ["I win a 10-cent Jackpot", "I gain zero cents", "I lose two cents"],
+            on_finish: function(data){
+                compchk_r = data.button_pressed;
+            },
+        };
+
+        var CompChk_Button = {
+            type: 'html-button-response',
+            stimulus:'<p>To make sure you understand the rules of the '+R1Span+', '
+            +'please answer the following question:</p>'
+            +'<p>What button must you press to stop '+R1ColorWord+' tiles from changing color?</p>',
+            choices: ["ENTER", "SPACEBAR", "TAB"],
+            on_finish: function(data){
+                compchk_button = data.button_pressed;
+            },
+        };
+
+        var ErrorMessage = {
+            type: "instructions",
+            pages: ["<div class='parent'>"
+            +"<p>You provided the wrong answer.<br>To make sure you understand how to play, please continue to re-read the instructions.</p>"
+            +"</div>"],
+            key_forward: 32,
+        }
+
+        var T1Error_3State = {
+            timeline: [ErrorMessage],
+            conditional_function: function(){
+                if(compchk_g == 0 && compchk_b == 1 && compchk_r == 2 && compchk_button == 1){
+                    return false;
+                } else {
+                    return true;
+                }
+            }
+        }
+
+        var T1Error_Neutral = {
+            timeline: [ErrorMessage],
+            conditional_function: function(){
+                if(compchk_g == 0 && compchk_b == 1 && compchk_button == 1){
+                    return false;
+                } else {
+                    return true;
+                }
+            }
+        }
+
+        var T1Error_Punish = {
+            timeline: [ErrorMessage],
+            conditional_function: function(){
+                if(compchk_g == 0 && compchk_r == 2 && compchk_button == 1){
+                    return false;
+                } else {
+                    return true;
+                }
+            }
+        }
+
+        var T1Loop_3State = {
+            timeline: [T1b, T1c_3State, CompChk_Hit, CompChk_Gray, CompChk_Red, CompChk_Button, T1Error_3State],
+            loop_function: function(){
+                if(compchk_g == 0 && compchk_b == 1 && compchk_r == 2 && compchk_button == 1){
+                    return false;
+                } else {
+                    return true;
+                }
+            }
+        }
+
+        var T1Loop_Neutral = {
+            timeline: [T1b, T1c_Neutral, CompChk_Hit, CompChk_Gray, CompChk_Button, T1Error_Neutral],
+            loop_function: function(){
+                if(compchk_g == 0 && compchk_b == 1 && compchk_button == 1){
+                    return false;
+                } else {
+                    return true;
+                }
+            }
+        }
+
+        var T1Loop_Punish = {
+            timeline: [T1b, T1c_Punish, CompChk_Hit, CompChk_Red, CompChk_Button, T1Error_Punish],
+            loop_function: function(){
+                if(compchk_g == 0 && compchk_r == 2 && compchk_button == 1){
+                    return false;
+                } else {
+                    return true;
+                }
+            }
+        }
+
+        // Round 2 Instructions
+        var R2i1 = [
+        "<div class='parent'>"
+        +"<p>Thank you for playing the "+R1Span+"!</p>"
+        +"When you're ready, press your SPACEBAR to continue to the "+R2Span+".</p>"
+        +"</div>"]
+
+        var R2i2_ThreeToNeutral = [
+        "<div class='parent'>"
+        +"<p>The "+R2Span+" is like the "+R1Span+", but with two changes.</p>"
+        +"</div>",
+        "<div class='parent'>"
+        +"<p>First, in the "+R2Span+", you must try to stop "+R2ColorWord+" tiles "
+        +"(instead of "+R1ColorWord+" tiles) from changing color.</p>"
+        +'<div class="box" style="background-color:'+R2Color+'"></div>'
+        +"</div>",
+        '<div class="parent">'
+        +'<p>Second, '+R2ColorWord+' tiles only turn one color (instead of two different colors)...</p>'
+        +'<div class="box" style="background-color:'+R2Color+'"></div>'
+        +"</div>",
+        "<div class='parent'>"
+        +"<p>Specifically, they only turn <span class='gray-span'>gray</span>.</p>"
+        +'<div class="box" style="background-color:#444444"></div>'
+        +"</div>",
+        "<div class='parent'>"
+        +"<p>Everything else is the same: If a tile turns <span class='gray-span'>gray</span> before you stop it, you will gain zero cents...</p>"
+        +'<div class="box" style="background-color:#444444"></div>'
+        +"</div>",
+        "<div class='parent'>"
+        +"<p>...and you will see this image.</p>"
+        +"<img src='img/nope.png', style='height: 75%'>"
+        +"</div>",
+        "<div class='parent'>"
+        +'<p>In summary, you will win a 10-cent Jackpot each time '
+        +'you stop a '+R2ColorWord+' tile from changing color...</p>'
+        +'<div class="box" style="background-color:'+R2Color+'; box-shadow: 0px 0px 40px 20px #FFDF00"></div>'
+        +"</div>",
+        "<div class='parent'>"
+        +"<p>...but each time a tile turns <span class='gray-span'>gray</span> before you stop it, "
+        +"you will gain zero cents.</p>"
+        +'<div class="box" style="background-color:#444444"></div>'
+        +"</div>"]
+
+        var R2i2_ThreeToPunish = [
+        "<div class='parent'>"
+        +"<p>The "+R2Span+" is like the "+R1Span+", but with two changes.</p>"
+        +"</div>",
+        "<div class='parent'>"
+        +"<p>First, in the "+R2Span+", you must try to stop "+R2ColorWord+" tiles "
+        +"(instead of "+R1ColorWord+" tiles) from changing color.</p>"
+        +'<div class="box" style="background-color:'+R2Color+'"></div>'
+        +"</div>",
+        '<div class="parent">'
+        +'<p>Second, '+R2ColorWord+' tiles only turn one color (instead of two different colors)...</p>'
+        +'<div class="box" style="background-color:'+R2Color+'"></div>'
+        +"</div>",
+        "<div class='parent'>"
+        +"<p>Specifically, they only turn <span class='red-span'>red</span>.</p>"
+        +'<div class="box" style="background-color:#cf0000"></div>'
+        +"</div>",
+        "<div class='parent'>"
+        +"<p>Everything else is the same: If a tile turns <span class='red-span'>red</span> before you stop it, you will lose two cents...</p>"
+        +'<div class="box" style="background-color:#cf0000"></div>'
+        +"</div>",
+        "<div class='parent'>"
+        +"<p>...and you will see this image.</p>"
+        +"<img src='img/lose.png', style='height: 75%'>"
+        +"</div>",
+        "<div class='parent'>"
+        +'<p>In summary, you will win a 10-cent Jackpot each time '
+        +'you stop a '+R2ColorWord+' tile from changing color...</p>'
+        +'<div class="box" style="background-color:'+R2Color+'; '
+        +'box-shadow: 0px 0px 40px 20px #FFDF00"></div>'
+        +"</div>",
+        "<div class='parent'>"
+        +"<p>...but each time a tile turns <span class='red-span'>red</span> before you stop it, you will lose two cents.</p>"
+        +'<div class="box" style="background-color:#cf0000"></div>'
+        +"</div>"]
+
+        var R2i2_TwoToThree = [
+        "<div class='parent'>"
+        +"<p>The "+R2Span+" is like the "+R1Span+", but with two changes.</p>"
+        +"</div>",
+        "<div class='parent'>"
+        +"<p>First, in the "+R2Span+", you must try to stop "+R2ColorWord+" tiles "
+        +"(instead of "+R1ColorWord+" tiles) from changing color.</p>"
+        +'<div class="box" style="background-color:'+R2Color+'"></div>'
+        +"</div>",
+        '<div class="parent">'
+        +'<p>Second, '+R2ColorWord+' tiles can change into two different colors (instead of just one)...</p>'
+        +'<div class="box" style="background-color:'+R2Color+'"></div>'
+        +"</div>",
+        '<div class="parent">'
+        +"<p>Half the time they turn "+WontColorWord+"...</p>"
+        +'<div class="box" style="background-color:'+WontColor+'"></div>'
+        +"</div>",
+        "<div class='parent'>"
+        +"<p>...and half the time they turn "+WillColorWord+".</p>"
+        +'<div class="box" style="background-color:'+WillColor+'"></div>'
+        +"</div>",
+        "<div class='parent'>"
+        +"<p>If a tile turns "+WillColorWord+" before you stop it, you will "+WillOutcome+"...</p>"
+        +'<div class="box" style="background-color:'+WillColor+'"></div>'
+        +"</div>",
+        "<div class='parent'>"
+        +"<p>...and you will see this image.</p>"
+        +"<img src='img/"+WillPng+".png', style='height: 75%'>"
+        +"</div>",
+        "<div class='parent'>"
+        +"<p>If a tile turns "+WontColorWord+" before you stop it, you will "+WontOutcome+"...</p>"
+        +'<div class="box" style="background-color:'+WontColor+'"></div>'
+        +"</div>",
+        "<div class='parent'>"
+        +"<p>...and you will see this image.</p>"
+        +"<img src='img/"+WontPng+".png', style='height: 75%'>"
+        +"</div>",
+        "<div class='parent'>"
+        +'<p>In summary, you will win a 10-cent Jackpot each time '
+        +'you stop a '+R2ColorWord+' tile from changing color...</p>'
+        +'<div class="box" style="background-color:'+R2Color+'; '
+        +'box-shadow: 0px 0px 40px 20px #FFDF00"></div>'
+        +"</div>",
+        "<div class='parent'>"
+        +"<p>...but each time a tile turns "+WillColorWord+" before you stop it, "
+        +"you will "+WillOutcome+"...</p>"
+        +'<div class="box" style="background-color:'+WillColor+'"></div>'
+        +"</div>",
+        "<div class='parent'>"
+        +"<p>...and each time a tile turns "+WontColorWord+" before you stop it, "
+        +"you will "+WontOutcome+".</p>"
+        +'<div class="box" style="background-color:'+WontColor+'"></div>'
+        +"</div>"]
+
+        var T2a = {
+            type: "instructions",
+            pages: R2i1,
+            key_forward: 32,
+        }
+
+        var T2b_TwoToThree = {
+            type: "instructions",
+            pages: R2i2_TwoToThree,
+            key_forward: 32,
+        }
+
+        var T2b_ThreeToNeutral = {
+            type: "instructions",
+            pages: R2i2_ThreeToNeutral,
+            key_forward: 32,
+        }
+
+        var T2b_ThreeToPunish = {
+            type: "instructions",
+            pages: R2i2_ThreeToPunish,
+            key_forward: 32,
+        }
+
+        var T2c = {
+            type: "instructions",
+            pages: ["<div class='parent'>"
+            +"<p>You are now ready to play the "+R2Span+".</p>"
+            +"<p>Once you proceed, the "+R2Span+" will start immediately, "
+            +"so get ready to press your SPACEBAR.</p>"
+            +"<p>Continue to to begin.</p>"
+            +"</div>"],
+            key_forward: 32,
+            post_trial_gap: 500,
+        }
+
+        // Round 2 Comp Check
+        var T2CompChk_Hit = {
+            type: 'html-button-response',
+            stimulus:'<p>To make sure you understand the rules of the '+R2Span+', '
+            +'please answer the following question:</p>'
+            +'<p>What happens each time you stop a '+R2ColorWord+' tile from changing color?</p>',
+            choices: ["I win a 10-cent Jackpot", "I gain zero cents", "I lose two cents"],
+            on_finish: function(data){
+                compchk_g2 = data.button_pressed;
+            },
+        };
+
+        var T2CompChk_Gray = {
+            type: 'html-button-response',
+            stimulus:'<p>To make sure you understand the rules of the '+R2Span+', '
+            +'please answer the following question:</p>'
+            +'<p>What happens each time a tile turns <span class="gray-span">gray</span> before you stop it?</p>',
+            choices: ["I win a 10-cent Jackpot", "I gain zero cents", "I lose two cents"],
+            on_finish: function(data){
+                compchk_b2 = data.button_pressed;
+            },
+        };
+
+        var T2CompChk_Red = {
+            type: 'html-button-response',
+            stimulus:'<p>To make sure you understand the rules of the '+R2Span+', '
+            +'please answer the following question:</p>'
+            +'<p>What happens each time a tile turns <span class="red-span">red</span> before you stop it?</p>',
+            choices: ["I win a 10-cent Jackpot", "I gain zero cents", "I lose two cents"],
+            on_finish: function(data){
+                compchk_r2 = data.button_pressed;
+            },
+        };
+
+        var T2CompChk_States = {
+            type: 'html-button-response',
+            stimulus:'<p>To make sure you understand the rules of the '+R2Span+', '
+            +'please answer the following question:</p>'
+            +'<p>If you fail to stop a '+R2ColorWord+' tile, what color will it become?</p>',
+            choices: ['<span class="red-span">red</span>', 
+            '<span class="red-span">red</span> or <span class="gray-span">gray</span>', 
+            '<span class="gray-span">gray</span>'],
+            on_finish: function(data){
+                compchk_states = data.button_pressed;
+            },
+        };
+
+        var T2Error_3State = {
+            timeline: [ErrorMessage],
+            conditional_function: function(){
+                if(compchk_g2 == 0 && compchk_b2 == 1 && compchk_r2 == 2 && compchk_states == 1){
+                    return false;
+                } else {
+                    return true;
+                }
+            }
+        }
+
+        var T2Error_Neutral = {
+            timeline: [ErrorMessage],
+            conditional_function: function(){
+                if(compchk_g2 == 0 && compchk_b2 == 1 && compchk_states == 2){
+                    return false;
+                } else {
+                    return true;
+                }
+            }
+        }
+
+        var T2Error_Punish = {
+            timeline: [ErrorMessage],
+            conditional_function: function(){
+                if(compchk_g2 == 0 && compchk_r2 == 2 && compchk_states == 0){
+                    return false;
+                } else {
+                    return true;
+                }
+            }
+        }
+
+        var T2Loop_3State = {
+            timeline: [T2b_TwoToThree, T2CompChk_States, T2CompChk_Hit, T2CompChk_Red, T2CompChk_Gray, T2Error_3State],
+            loop_function: function(){
+                if(compchk_g2 == 0 && compchk_b2 == 1 && compchk_r2 == 2 && compchk_states == 1){
+                    return false;
+                } else {
+                    return true;
+                }
+            }
+        }
+
+        var T2Loop_Neutral = {
+            timeline: [T2b_ThreeToNeutral, T2CompChk_States, T2CompChk_Hit, T2CompChk_Gray, T2Error_Neutral],
+            loop_function: function(){
+                if(compchk_g2 == 0 && compchk_b2 == 1 && compchk_states == 2){
+                    return false;
+                } else {
+                    return true;
+                }
+            }
+        }
+
+        var T2Loop_Punish = {
+            timeline: [T2b_ThreeToPunish, T2CompChk_States, T2CompChk_Hit, T2CompChk_Red, T2Error_Punish],
+            loop_function: function(){
+                if(compchk_g2 == 0 && compchk_r2 == 2 && compchk_states == 0){
+                    return false;
+                } else {
+                    return true;
+                }
+            }
+        }
+        timeline.push(welcome)
+
+
+        // Create Trials
+
+        var Delay = {
+            type: 'html-keyboard-response',
+            data: {Trial_Type: 'ITI'},
+            stimulus: '<div class="box" style="background-color:white"></div>',
+            choices: [32],
+            trial_duration: function(){
+                return jsPsych.randomization.sampleWithoutReplacement(ITI, 1)[0];
+            },
+            on_finish: function(data){
+                if(data.key_press == 32){
+                    data.TooFast = 1;
+                } else if(data.key_press != 32){
+                    data.TooFast = 0;
+                    tNum = tNum + 1;
+                }
+            },
+        }
+
+        var TooFast = {
+            type: 'html-keyboard-response',
+            data: {Trial_Type: 'Too_Fast_Message'},
+            stimulus: function(){
+                if(jsPsych.data.get().last(1).values()[0].key_press == 32){
+                    return "<div style='font-size: 20px'><p>Too Fast!</p>"+
+                    "<p>Please wait for the tile to turn green before pressing your SPACEBAR</p></div>"
+                } else {
+                    return ""
+                }
+            },
+            trial_duration: function(){
+                if(jsPsych.data.get().last(1).values()[0].key_press == 32){
+                    return 2500
+                } else {
+                    return 0
+                }
+            },
+            post_trial_gap: function(){
+                if(jsPsych.data.get().last(1).values()[0].key_press == 32){
+                    return 1000;
+                } else {
+                    return 0
+                }
+            },
+            choices: jsPsych.NO_KEYS,
+        }
+
+        var TaskLoop = {
+            timeline: [Delay, TooFast],
+            loop_function: function(){
+                if(jsPsych.data.get().last(2).values()[0].key_press != 32){
+                    return false;
+                } else {
+                    return true;
+                }
+            }
+        }
+
+        var Probe = {
+            type: 'html-keyboard-response',
+            data: {Trial_Type: 'Probe'},
+            stimulus: jsPsych.timelineVariable('prime'),
+            choices: [32],
+            trial_duration: function(){
+                return timing[tNum];
+            },
+            on_finish: function(data){
+                if(data.key_press == 32){
+                    data.TooSlow = 0;
+                } else if(data.key_press != 32){
+                    data.TooSlow = 1;
+                }
+            },
+        }
+
+        var Response_3State = {
+            type: 'html-keyboard-response',
+            data: {Trial_Type: 'Response_3State'},
+            stimulus: function(){
+                if(jsPsych.data.get().last(1).values()[0].key_press == 32){
+                    return jsPsych.timelineVariable('hit', true);
+                } else {
+                    return '<div class="box" style="background-color:'+missoutcome[missNum]+'"></div>';
+                }
+            },
+            choices: [32],
+            response_ends_trial: false,
+            trial_duration: 1000,
+        }
+
+        var Response_Neutral = {
+            type: 'html-keyboard-response',
+            data: {Trial_Type: 'Response_Neutral'},
+            stimulus: function(){
+                if(jsPsych.data.get().last(1).values()[0].key_press == 32){
+                    return jsPsych.timelineVariable('hit', true);
+                } else {
+                    return '<div class="box" style="background-color:#444444"></div>';
+                }
+            },
+            choices: [32],
+            response_ends_trial: false,
+            trial_duration: 1000,
+        }
+
+        var Response_Punish = {
+            type: 'html-keyboard-response',
+            data: {Trial_Type: 'Response_Punish'},
+            stimulus: function(){
+                if(jsPsych.data.get().last(1).values()[0].key_press == 32){
+                    return jsPsych.timelineVariable('hit', true);
+                } else {
+                    return '<div class="box" style="background-color:#cf0000"></div>';
+                }
+            },
+            choices: [32],
+            response_ends_trial: false,
+            trial_duration: 1000,
+        }
+
+        var Feedback = {
+            type: 'html-keyboard-response',
+            data: {Trial_Type: 'Feedback'},
+            stimulus: function(){
+                if(jsPsych.data.get().last(1).values()[0].stimulus == jsPsych.timelineVariable('hit', true)){
+                    return "<img src='img/jackpot.png' class='rewardimg'>";
+                } else if (jsPsych.data.get().last(1).values()[0].stimulus == '<div class="box" style="background-color:#444444"></div>'){
+                    return "<img src='img/nope.png' class='rewardimg'>";
+                } else if (jsPsych.data.get().last(1).values()[0].stimulus == '<div class="box" style="background-color:#cf0000"></div>'){
+                    return "<img src='img/lose.png' class='rewardimg'>";
+                }
+            },
+            on_finish: function(data){
+                if(data.stimulus == "<img src='img/jackpot.png' class='rewardimg'>"){
+                    data.outcome = "jackpot";
+                } else if (data.stimulus == "<img src='img/nope.png' class='rewardimg'>"){
+                    data.outcome = "neutral";
+                    missNum = missNum + 1;
+                } else if (data.stimulus == "<img src='img/lose.png' class='rewardimg'>"){
+                    data.outcome = "punish";
+                    missNum = missNum + 1;
+                }
+            },
+            choices: jsPsych.NO_KEYS,
+            trial_duration: 1500,
+        }
+
+        var P1_3State = {
+            timeline: [TaskLoop, Probe, Response_3State, Feedback],
+            repetitions: 50,
+            timeline_variables: [
+                {prime: '<div class="box" style="background-color:'+R1Color+'"></div>', hit: '<div class="box" style="background-color:'+R1Color+'; box-shadow: 0px 0px 40px 20px #FFDF00"></div>'}
+            ]
+        }
+
+        var P1_Neutral = {
+            timeline: [TaskLoop, Probe, Response_Neutral, Feedback],
+            repetitions: 50,
+            timeline_variables: [
+                {prime: '<div class="box" style="background-color:'+R1Color+'"></div>', hit: '<div class="box" style="background-color:'+R1Color+'; box-shadow: 0px 0px 40px 20px #FFDF00"></div>'}
+            ]
+        }
+
+        var P1_Punish = {
+            timeline: [TaskLoop, Probe, Response_Punish, Feedback],
+            repetitions: 50,
+            timeline_variables: [
+                {prime: '<div class="box" style="background-color:'+R1Color+'"></div>', hit: '<div class="box" style="background-color:'+R1Color+'; box-shadow: 0px 0px 40px 20px #FFDF00"></div>'}
+            ]
+        }
+
+        var P2_3State = {
+            timeline: [TaskLoop, Probe, Response_3State, Feedback],
+            repetitions: 50,
+            timeline_variables: [
+                {prime: '<div class="box" style="background-color:'+R2Color+'"></div>', hit: '<div class="box" style="background-color:'+R2Color+'; box-shadow: 0px 0px 40px 20px #FFDF00"></div>'}
+            ]
+        }
+
+        var P2_Neutral = {
+            timeline: [TaskLoop, Probe, Response_Neutral, Feedback],
+            repetitions: 50,
+            timeline_variables: [
+                {prime: '<div class="box" style="background-color:'+R2Color+'"></div>', hit: '<div class="box" style="background-color:'+R2Color+'; box-shadow: 0px 0px 40px 20px #FFDF00"></div>'}
+            ]
+        }
+
+        var P2_Punish = {
+            timeline: [TaskLoop, Probe, Response_Punish, Feedback],
+            repetitions: 50,
+            timeline_variables: [
+                {prime: '<div class="box" style="background-color:'+R2Color+'"></div>', hit: '<div class="box" style="background-color:'+R2Color+'; box-shadow: 0px 0px 40px 20px #FFDF00"></div>'}
+            ]
+        }
+
+        var scale_1 = [
+            "0<br>Not<br>at all",
+            "1", "2", "3", "4", "5", "6", "7",
+            "8<br>Extremely",
+        ];
+
+        var scale_2 = [
+            '0<br><div style="font-size:12px">Zero<br>Control</div>',
+            "1", "2", "3", "4", "5", "6", "7",
+            '8<br><div style="font-size:12px">Complete<br>Control</div>',
+        ];
+
+        var scale_3 = [
+            '-4<br><div style="font-size:12px">Way<br>Too<br>Easy</div>',
+            "-3",
+            "-2",
+            "-1",
+            '0<br><div style="font-size:12px">Just<br>Right</div>',
+            "1",
+            "2",
+            "3",
+            '4<br><div style="font-size:12px">Way<br>Too<br>Hard</div>',
+        ];
+
+        var scale_5 = [
+            "0<br>Not<br>at all",
+            "1", "2", "3", "4", "5", "6", "7",
+            "8<br>A lot",
+        ];
+
+        var R1Attention = {
+            type: 'survey-likert',
+            preamble: 
+                '<div style="padding-top: 50px; width: 850px; font-size:16px">'
+                +'<p>Thank you for playing the '+R1Span+'!</p>'
+                +'<p>Now, please provide your honest assessment of the '+R1Span
+                +' by answering each of the following questions.</div>',
+            questions: [
+                {prompt: 'How engaging was the '+R1Span+'?',
+                name: 'R1_Engaging',
+                labels: scale_1},
+                {prompt: 'How engrossing was the '+R1Span+'?',
+                name: 'R1_Engrossing',
+                labels: scale_1},
+                {prompt: 'How immersive was the '+R1Span+'?',
+                name: 'R1_Immersive',
+                labels: scale_1},
+                {prompt: 'How addictive was the '+R1Span+'?',
+                name: 'R1_Addictive',
+                labels: scale_1},
+            ],
+            randomize_question_order: false,
+            scale_width: 500
+        };
+
+        var R2Attention = {
+            type: 'survey-likert',
+            preamble: 
+                '<div style="padding-top: 50px; width: 850px; font-size:16px">'
+                +'<p>Thank you for playing the '+R2Span+'!</p>'
+                +'<p>Now, please provide your honest assessment of the '+R2Span
+                +' by answering each of the following questions.</div>',
+            questions: [
+                {prompt: 'How engaging was the '+R2Span+'?',
+                name: 'R1_Engaging',
+                labels: scale_1},
+                {prompt: 'How engrossing was the '+R2Span+'?',
+                name: 'R1_Engrossing',
+                labels: scale_1},
+                {prompt: 'How immersive was the '+R2Span+'?',
+                name: 'R1_Immersive',
+                labels: scale_1},
+                {prompt: 'How addictive was the '+R2Span+'?',
+                name: 'R1_Addictive',
+                labels: scale_1},
+            ],
+            randomize_question_order: false,
+            scale_width: 500
+        };
+
+        var R1Valence = {
+            type: 'survey-likert',
+            preamble: 
+                '<div style="padding-top: 50px; width: 850px; font-size:16px"><p></p></div>',
+            questions: [
+                {prompt: 'How much did you like the '+R1Span+'?',
+                name: 'R1_Like',
+                labels: scale_5},
+                {prompt: 'How much did you dislike the '+R1Span+'?',
+                name: 'R1_Dislike',
+                labels: scale_5},
+                {prompt: 'How enjoyable was the '+R1Span+'?',
+                name: 'R1_Enjoyable',
+                labels: scale_1},
+                {prompt: 'How fun was the '+R1Span+'?',
+                name: 'R1_Fun',
+                labels: scale_1},
+                {prompt: 'How entertaining was the '+R1Span+'?',
+                name: 'R1_Entertaining',
+                labels: scale_1},
+            ],
+            randomize_question_order: false,
+            scale_width: 500
+        };
+
+        var R2Valence = {
+            type: 'survey-likert',
+            preamble: 
+                '<div style="padding-top: 50px; width: 850px; font-size:16px"><p></p></div>',
+            questions: [
+                {prompt: 'How much did you like the '+R2Span+'?',
+                name: 'R1_Like',
+                labels: scale_5},
+                {prompt: 'How much did you dislike the '+R2Span+'?',
+                name: 'R1_Dislike',
+                labels: scale_5},
+                {prompt: 'How enjoyable was the '+R2Span+'?',
+                name: 'R1_Enjoyable',
+                labels: scale_1},
+                {prompt: 'How fun was the '+R2Span+'?',
+                name: 'R1_Fun',
+                labels: scale_1},
+                {prompt: 'How entertaining was the '+R2Span+'?',
+                name: 'R1_Entertaining',
+                labels: scale_1},
+            ],
+            randomize_question_order: false,
+            scale_width: 500
+        };
+
+        var R1CtrlBal = {
+            type: 'survey-likert',
+            preamble:
+                '<div style="padding-top: 50px; width: 800px; font-size:16px"><p></p></div>',
+            questions: [
+                {prompt: 'While playing the '+R1Span+', how much control did you feel you had over the outcome of each trial?',
+                name: 'R1_Control',
+                labels: scale_2},
+                {prompt: 'Was the '+R1Span+' too easy, too hard, or just the right level of difficulty?',
+                name: 'R1_Balance',
+                labels: scale_3},
+            ],
+            randomize_question_order: false,
+            scale_width: 500
+        };
+
+        var R2CtrlBal = {
+            type: 'survey-likert',
+            preamble:
+                '<div style="padding-top: 50px; width: 800px; font-size:16px"><p></p></div>',
+            questions: [
+                {prompt: 'While playing the '+R2Span+', how much control did you feel you had over the outcome of each trial?',
+                name: 'R1_Control',
+                labels: scale_2},
+                {prompt: 'Was the '+R2Span+' too easy, too hard, or just the right level of difficulty?',
+                name: 'R1_Balance',
+                labels: scale_3},
+            ],
+            randomize_question_order: false,
+            scale_width: 500
+        };
+
+        if (GameType == 0) {
+            var test_procedure = {
+                timeline: [
+                T1a, T1Loop_Punish, T1d, P1_Punish, R1Attention, R1Valence, R1CtrlBal,
+                T2a, T2Loop_3State, T2c, P2_3State, R2Attention, R2Valence, R2CtrlBal,
+                ],
+            }
+        } else if (GameType == 1) {
+            var test_procedure = {
+                timeline: [
+                T1a, T1Loop_Neutral, T1d, P1_Neutral, R1Attention, R1Valence, R1CtrlBal,
+                T2a, T2Loop_3State, T2c, P2_3State, R2Attention, R2Valence, R2CtrlBal,
+                ],
+            }
+        } else if (GameType == 2) {
+            var test_procedure = {
+                timeline: [
+                T1a, T1Loop_3State, T1d, P1_3State, R1Attention, R1Valence, R1CtrlBal, 
+                T2a, T2Loop_Punish, T2c, P2_Punish, R2Attention, R2Valence, R2CtrlBal,
+                ],
+            }           
+        } else if (GameType == 3) {
+            var test_procedure = {
+                timeline: [
+                T1a, T1Loop_3State, T1d, P1_3State, R1Attention, R1Valence, R1CtrlBal,
+                T2a, T2Loop_Neutral, T2c, P2_Neutral, R2Attention, R2Valence, R2CtrlBal,
+                ],
+            }               
+        }
+
+        timeline.push(test_procedure)
+    
+    
+    
+////////////////// Ryan's edits for in-lab study //////////////////
+    
+    var E_gender = {
+        type: 'html-button-response',
+        stimulus: '<p>Gender:</p>',
+        choices: ['Male', 'Female','Other'],
+    };
+    timeline.push(E_gender);  
+      
+      
+    var E_age = {
+          type: 'survey-text',
+          questions: [
+            {prompt: "Age:",
+            name: "E_age"},
+          ],
+        }; 
+    timeline.push(E_age);
+    
+    var E_ethnicity = {
+        type: 'html-button-response',
+        stimulus: '<p>Ethnicity:</p>',
+        choices: ['White / Caucasian', 'Black / African American','Asian / Pacific Islander', 'Hispanic', 'Native American', 'Other'],
+    };
+    timeline.push(E_ethnicity);  
+    
+    var E_english = {
+        type: 'html-button-response',
+        stimulus: '<p>Is English your native language?:</p>',
+        choices: ['Yes', 'No'],
+    };
+    timeline.push(E_english);  
+    
+    
+    var E_finalword = {
+          type: 'survey-text',
+          questions: [
+            {prompt: "Questions? Comments? Complains? Provide your feedback here!",
+            rows: 10,
+            columns: 100,
+            name: "E_finalword"},
+          ],
+        }; 
+    timeline.push(E_finalword);
+        
+    var E_email = {
+        type: 'survey-text',
+        questions: [
+            {prompt: "",
+            placeholder: "Email Address", 
+            name: "E_email", 
+            columns: 50,
+            required: true}
+        ],
+        preamble: function(){
+            var JackPotTrials = jsPsych.data.get().filter({Trial_Type: 'Feedback', outcome: "jackpot"});
+            var PunishTrials = jsPsych.data.get().filter({Trial_Type: 'Feedback', outcome: "punish"});
+            var TotalJackpots = JackPotTrials.count();
+            var TotalPunish = PunishTrials.count();
+            var TotalEarnings = (TotalJackpots*10) - (TotalPunish*2);         
+            var TotalDollars = (Math.round(TotalEarnings/100)).toFixed(2)         
+
+            return '<p>Thank you for participating!</p><p>In total, you got <b>'+TotalJackpots+' Jackpots</b>, and the tile turned red '+TotalPunish+' times, which means you won <b>$'+TotalDollars+'</b> in bonus money!<br>Within one week, you will receive your bonus money, plus $5 for your participation.</p><p>To receive payment, enter your email address in the space below. If you with to forgo payment, type NA. <b>After you submit, you will see a blank screen, which indicates that your submission was successful</b>.</p>'
+        },
+        button_label: ['CLICK HERE TO FINISH']
+    };
+    timeline.push(E_email);
+    
+    
+    
+  // WRITE TO DATABASE
+        jsPsych.init({
+            timeline: timeline, 
+            on_finish: function() {
+                firebase.database().ref(firebase.auth().currentUser.uid).set({
+                    data: jsPsych.data.get().values()
+                })
+            }
+        });
+    
+    
+                
+/////////////////////////////////////////////////
+        
+        
+        
+    
+    
+    
+
+    
+    </script>
+
+<!--
+    <script>
+        db.collection("tasks").doc('new_task').collection('subjects').doc(uid).update({
+            date: new push().toLocaleDateString(),
+            time: new Date().toLocaleTimeString()
+        });
+    </script>
+-->
+
+</html>
