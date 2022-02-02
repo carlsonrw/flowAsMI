@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    
+         <!-- The core Firebase JS SDK is always required and must be listed first -->
+  <script src="https://www.gstatic.com/firebasejs/7.8.2/firebase-app.js"></script>
+
+  <!-- TODO: Add SDKs for Firebase products that you want to use 
+    https://firebase.google.com/docs/web/setup#available-libraries -->
+  <script src="https://www.gstatic.com/firebasejs/7.8.2/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.8.2/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.8.2/firebase-database.js"></script>
+
+  <script>
+
+  // Your web app's Firebase configuration
+  var firebaseConfig = {
+    apiKey: "AIzaSyALcyhOcPOEUTgkuAr9tV8fzmOt6eS4mhA",
+    authDomain: "mi-game3.firebaseapp.com",
+    databaseURL: "https://mi-game3-v7.firebaseio.com",
+    projectId: "mi-game3",
+    storageBucket: "mi-game3.appspot.com",
+    messagingSenderId: "889184952168",
+    appId: "1:889184952168:web:3a449e52afa4aad87000dd"
+  };
+
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+
+  var database = firebase.database();
+
+  var uid = "id"
+
+  // login anonymous user
+  firebase.auth().signInAnonymously().catch(function(error) {
+    // Handle Errors here.
+    var errorCode = error.code;
+    var errorMessage = error.message;
+  });
+
+  firebase.auth().onAuthStateChanged(function(user) {
+    if (user) {
+      // User is signed in.
+      var isAnonymous = user.isAnonymous;
+      var uid = user.uid;
+      // ...
+    } else {
+      // User is signed out.
+      // ...
+    }
+    // ...
+  });
+	
+	</script>
+    
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <link rel="stylesheet" href="./css/jspsych.css" />
+    <link rel="stylesheet" href="./css/style.css" />
+    <script src="./jsFiles/jspsych.js"></script>
+    <script src="./jsFiles/oddsEvens.js"></script>
+    <script src="./jsFiles/rockPaperScissors.js"></script>
+    <script src="./jsFiles/jspsych-odds-evens.js"></script>
+    <script src="./jsFiles/jspsych-rock-paper-scissors.js"></script>
+    <script src="./jsFiles/jspsych-instructions.js"></script>
+    <script src="./jsFiles/jspsych-html-button-response.js"></script>
+    <script src="./jsFiles/jspsych-survey-likert.js"></script>
+    <script src="./jsFiles/jspsych-survey-multi-choice.js"></script>
+    <script src="./jsFiles/jspsych-survey-text.js"></script>
+    <title>Odds Evens</title>
+  </head>
+
+  <body>
+
+    <script src='./jsFiles/timeline.js'></script>
+
+  </body>
+
+
+</html>
